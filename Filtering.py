@@ -129,16 +129,10 @@ class FiteringFrame(customtkinter.CTkFrame):
         # Main Elements
         # Frequency
         self.FrequencyFrame = customtkinter.CTkFrame(self.ActionFrameExtended,border_width=5)
-        self.FrequencyFrame.rowconfigure((0,1,2,3,4,5,6),weight=1)
+        self.FrequencyFrame.rowconfigure((0,1,2,3,4),weight=0)
         self.FrequencyFrame.columnconfigure((0,1),weight=1)
 
         # Widgets
-        self.SmoothingLabel=customtkinter.CTkLabel(self.FrequencyFrame,text="Sharpening",font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.SmoothingLabel.grid(row=2,column=0,padx=10, pady=20)
-
-        self.SharpeningLabel=customtkinter.CTkLabel(self.FrequencyFrame,text="Smoothing",font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.SharpeningLabel.grid(row=2,column=1,padx=10, pady=20)
-
         self.D0_SliderLabel=customtkinter.CTkLabel(self.FrequencyFrame,text=f"Cutoff frequency = {self.D0}")
         self.D0_SliderLabel.grid(row=0,column=0,padx=10, pady=20)
         self.D0_Slider = customtkinter.CTkSlider(self.FrequencyFrame, from_=1, to=int(np.max(self.originalBitmatrix.shape)), number_of_steps=499, command=self.D0_SliderEvent)
@@ -151,30 +145,28 @@ class FiteringFrame(customtkinter.CTkFrame):
         self.Order_Slider.grid(row=1,column=1,padx=10, pady=20)
         self.Order_Slider.set(5)
 
-        self.GaussianLPFButton = customtkinter.CTkButton(self.FrequencyFrame, text="Gaussian LPF", command=self.GaussianLPF_Event)
-        self.GaussianLPFButton.grid(row=3,column=1,padx=10, pady=20)
+        self.SmoothingLabel=customtkinter.CTkLabel(self.FrequencyFrame,text="Smoothing",font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.SmoothingLabel.grid(row=2,column=0,padx=10, pady=20)
+        self.LPFLabel=customtkinter.CTkLabel(self.FrequencyFrame,text="Low Pass Filter",font=customtkinter.CTkFont(size=17, weight="bold"))
+        self.LPFLabel.grid(row=3,column=0,padx=10, pady=20)
 
-        self.GaussianHPFButton = customtkinter.CTkButton(self.FrequencyFrame, text="Gaussian HPF", command=self.GaussianHPF_Event)
-        self.GaussianHPFButton.grid(row=3,column=0,padx=10, pady=20)
+        self.SharpeningLabel=customtkinter.CTkLabel(self.FrequencyFrame,text="Sharpening",font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.SharpeningLabel.grid(row=2,column=1,padx=10, pady=20)
+        self.HPFLabel=customtkinter.CTkLabel(self.FrequencyFrame,text="High Pass Filter",font=customtkinter.CTkFont(size=17, weight="bold"))
+        self.HPFLabel.grid(row=3,column=1,padx=10, pady=20)
 
-        self.IdealLPFButton = customtkinter.CTkButton(self.FrequencyFrame, text="Ideal LPF", command=self.IdealLPF_Event)
-        self.IdealLPFButton.grid(row=4,column=1,padx=10, pady=20)
+        self.LPFOptions= customtkinter.CTkOptionMenu(self.FrequencyFrame,values=["Gaussian", "Ideal", "Butterworth"], dynamic_resizing=False,command=self.FrequencyLPFMenus)
+        self.LPFOptions.grid(row=4,column=0,padx=10, pady=20)
 
-        self.IdealHPFButton = customtkinter.CTkButton(self.FrequencyFrame, text="Ideal HPF", command=self.IdealHPF_Event)
-        self.IdealHPFButton.grid(row=4,column=0,padx=10, pady=20)
-
-        self.ButterworthLPFButton = customtkinter.CTkButton(self.FrequencyFrame, text="Butterworth LPF", command=self.ButterworthLPF_Event)
-        self.ButterworthLPFButton.grid(row=5,column=1,padx=10, pady=20)
-
-        self.ButterworthHPFButton = customtkinter.CTkButton(self.FrequencyFrame, text="Butterworth HPF", command=self.ButterworthHPF_Event)
-        self.ButterworthHPFButton.grid(row=5,column=0,padx=10, pady=20)
+        self.HPFOptions= customtkinter.CTkOptionMenu(self.FrequencyFrame,values=["Gaussian", "Ideal", "Butterworth"], dynamic_resizing=False,command=self.FrequencyHPFMenus)
+        self.HPFOptions.grid(row=4,column=1,padx=10, pady=20)
 
         self.addFDShapening = customtkinter.CTkButton(self.FrequencyFrame, text="Add to Original", command=self.addShapeningEvent)
-        self.addFDShapening.grid(row=6,column=0,columnspan=2,padx=10, pady=20)
+        self.addFDShapening.grid(row=5,column=0,columnspan=2,padx=10, pady=20)
 
         # Spacial
         self.SpacialFrame = customtkinter.CTkFrame(self.ActionFrameExtended,border_width=5)
-        self.SpacialFrame.rowconfigure((0,1,2,3,4,5,6,7,8,9),weight=1)
+        self.SpacialFrame.rowconfigure((0,1,2,3,4),weight=0)
         self.SpacialFrame.columnconfigure((0,1),weight=1)
 
         # Widgets
@@ -193,44 +185,23 @@ class FiteringFrame(customtkinter.CTkFrame):
         self.std_Slider.grid(row=4,column=0,padx=10, pady=20)
         self.std_Slider.set(self.std)
 
-        self.BoxBlurButton = customtkinter.CTkButton(self.SpacialFrame, text="Blur Box", command=self.BoxBlurEvent)
-        self.BoxBlurButton.grid(row=5,column=0,padx=10, pady=20)
-
-        self.GaussianBlurButton = customtkinter.CTkButton(self.SpacialFrame, text="Gaussian Blur", command=self.GaussianBlurEvent)
-        self.GaussianBlurButton.grid(row=6,column=0,padx=10, pady=20)
+        self.SmoothingKernelsOptions= customtkinter.CTkOptionMenu(self.SpacialFrame,values=["Box Blur", "Gaussian Blur"], dynamic_resizing=False,command=self.SpatialMenus)
+        self.SmoothingKernelsOptions.grid(row=5,column=0,padx=10, pady=20)
 
         self.SharpeningSpacialLabel=customtkinter.CTkLabel(self.SpacialFrame,text="Sharpening",font=customtkinter.CTkFont(size=20, weight="bold"))
         self.SharpeningSpacialLabel.grid(row=0,column=1,padx=10, pady=20)
 
-        self.Laplacian1 = customtkinter.CTkButton(self.SpacialFrame, text="Laplacian 1", command=self.Laplacian1Event)
-        self.Laplacian1.grid(row=1,column=1,padx=10, pady=20)
-
-        self.Laplacian2 = customtkinter.CTkButton(self.SpacialFrame, text="Laplacian 2", command=self.Laplacian2Event)
-        self.Laplacian2.grid(row=2,column=1,padx=10, pady=20)
-
-        self.Laplacian3 = customtkinter.CTkButton(self.SpacialFrame, text="Laplacian 3", command=self.Laplacian3Event)
-        self.Laplacian3.grid(row=3,column=1,padx=10, pady=20)
-
-        self.Laplacian4 = customtkinter.CTkButton(self.SpacialFrame, text="Laplacian 4", command=self.Laplacian4Event)
-        self.Laplacian4.grid(row=4,column=1,padx=10, pady=20)
-
-        self.addShapening = customtkinter.CTkButton(self.SpacialFrame, text="Add to Original", command=self.addShapeningEvent)
-        self.addShapening.grid(row=5,column=1,padx=10, pady=20)
+        self.SharpeningKernelsOptions= customtkinter.CTkOptionMenu(self.SpacialFrame,values=["Laplacian 1", "Laplacian 2", "Laplacian 3","Laplacian 4"], dynamic_resizing=False,command=self.SpatialMenus)
+        self.SharpeningKernelsOptions.grid(row=1,column=1,padx=10, pady=20)
 
         self.miscSpacialLabel=customtkinter.CTkLabel(self.SpacialFrame,text="Edges",font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.miscSpacialLabel.grid(row=7,column=0, columnspan=2,padx=10, pady=20)
+        self.miscSpacialLabel.grid(row=2,column=1,padx=10, pady=20)
 
-        self.HorizontalSobelButton = customtkinter.CTkButton(self.SpacialFrame, text="Horizontal Sobel", command=self.HorizontalSobelEvent)
-        self.HorizontalSobelButton.grid(row=8,column=0,padx=10, pady=20)
-
-        self.VerticalSobelButton = customtkinter.CTkButton(self.SpacialFrame, text="Vertical Sobel", command=self.VerticalSobelEvent)
-        self.VerticalSobelButton.grid(row=8,column=1,padx=10, pady=20)
-
-        self.LeftDiagonalButton = customtkinter.CTkButton(self.SpacialFrame, text="Left Diagonal Sobel", command=self.LeftDiagonalEvent)
-        self.LeftDiagonalButton.grid(row=9,column=0,padx=10, pady=20)
-
-        self.RightDiagonalButton = customtkinter.CTkButton(self.SpacialFrame, text="Right Diagonal Sobel", command=self.RightDiagonalEvent)
-        self.RightDiagonalButton.grid(row=9,column=1,padx=10, pady=20)
+        self.EdgeKernelsOptions = customtkinter.CTkOptionMenu(self.SpacialFrame,values=["Horizontal Sobel", "Vertical Sobel", "Left Diagonal Sobel","Right Diagonal Sobel"],width=175, dynamic_resizing=False,command=self.SpatialMenus)
+        self.EdgeKernelsOptions.grid(row=3,column=1,padx=10, pady=20)
+        
+        self.addShapening = customtkinter.CTkButton(self.SpacialFrame, text="Add to Original", command=self.addShapeningEvent)
+        self.addShapening.grid(row=4,column=1,padx=10, pady=20)
 
 
     # Reset Functions
@@ -275,12 +246,12 @@ class FiteringFrame(customtkinter.CTkFrame):
         self.ButterworthHPF = 1 - self.ButterworthLPF
 
         self.TransferDictionary = {
-                "Gaussian Low Pass Filter" : self.GaussianLPF,
-                "Gaussian High Pass Filter" : self.GaussianHPF,
-                "Ideal Low Pass Filter" : self.IdealLPF,
-                "Ideal High Pass Filter" :  self.IdealHPF,
-                "Butterworth Low Pass Filter" : self.ButterworthLPF,
-                "Butterworth High Pass Filter" : self.ButterworthHPF
+                "Gaussian Low Pass" : self.GaussianLPF,
+                "Gaussian High Pass" : self.GaussianHPF,
+                "Ideal Low Pass" : self.IdealLPF,
+                "Ideal High Pass" :  self.IdealHPF,
+                "Butterworth Low Pass" : self.ButterworthLPF,
+                "Butterworth High Pass" : self.ButterworthHPF
             }
         
     def FrequencyDomainEvent(self):
@@ -371,35 +342,16 @@ class FiteringFrame(customtkinter.CTkFrame):
         if self.Transferfunction != None:
             self.processTransfer()
 
-    def GaussianLPF_Event(self):
-        self.Transferfunction = "Gaussian Low Pass Filter"
+    def FrequencyLPFMenus(self,value):
+        self.Transferfunction = value + " Low Pass"
 
         self.processTransfer()
 
-    def GaussianHPF_Event(self):
-        self.Transferfunction = "Gaussian High Pass Filter"
+    def FrequencyHPFMenus(self,value):
+        self.Transferfunction = value + " High Pass"
 
         self.processTransfer()
 
-    def IdealLPF_Event(self):
-        self.Transferfunction = "Ideal Low Pass Filter"
-
-        self.processTransfer()
-
-    def IdealHPF_Event(self):
-        self.Transferfunction = "Ideal High Pass Filter"
-
-        self.processTransfer()
-
-    def ButterworthLPF_Event(self):
-        self.Transferfunction = "Butterworth Low Pass Filter"
-
-        self.processTransfer()
-
-    def ButterworthHPF_Event(self):
-        self.Transferfunction = "Butterworth High Pass Filter"
-
-        self.processTransfer()
 
     # Spaical
     def SpacialDomainEvent(self):
@@ -461,46 +413,10 @@ class FiteringFrame(customtkinter.CTkFrame):
 
         self.updateSpacialDictionary()
 
-    def BoxBlurEvent(self):
-        self.seletedKernel = "Box Blur"
+    def SpatialMenus(self,value):
+        self.seletedKernel = value
         self.processSpacial()
 
-    def GaussianBlurEvent(self):
-        self.seletedKernel = "Gaussian Blur"
-        self.processSpacial()
-
-    def Laplacian1Event(self):
-        self.seletedKernel = "Laplacian 1"
-        self.processSpacial()
-
-    def Laplacian2Event(self):
-        self.seletedKernel = "Laplacian 2"
-        self.processSpacial()
-
-    def Laplacian3Event(self):
-        self.seletedKernel = "Laplacian 3"
-        self.processSpacial()
-   
-    def Laplacian4Event(self):
-        self.seletedKernel = "Laplacian 4"
-        self.processSpacial()
-   
-    def HorizontalSobelEvent(self):
-        self.seletedKernel = "Horizontal Sobel"
-        self.processSpacial()
-   
-    def VerticalSobelEvent(self):
-        self.seletedKernel = "Vertical Sobel"
-        self.processSpacial()
-   
-    def LeftDiagonalEvent(self):
-        self.seletedKernel = "Left Diagonal Sobel"
-        self.processSpacial()
-   
-    def RightDiagonalEvent(self):
-        self.seletedKernel = "Right Diagonal Sobel"
-        self.processSpacial()
-   
     def addShapeningEvent(self):
         s = self.originalBitmatrix.astype(np.float64) + self.app.bitMatrix[self.ROI[1]:self.ROI[3],self.ROI[0]:self.ROI[2]].astype(np.float64)
         s=clipValues(s,self.app.bits).astype(np.uint8)
