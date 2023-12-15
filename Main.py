@@ -59,34 +59,43 @@ class BaseApp:
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
         self.logo_label.grid_propagate(False)
 
-        self.select_Image_button = customtkinter.CTkButton(self.sidebar_frame, command=self.selectPictureEvent, text="Select Image")
-        self.select_Image_button.grid(row=1, column=0, padx=20, pady=10)
+        ImageFont = customtkinter.CTkFont(family="font3", size=20)
+        HistogramFont = customtkinter.CTkFont(family="font3", size=17)
+        ZoomingFont = customtkinter.CTkFont(family="font3", size=17)
+        ContrastFont = customtkinter.CTkFont(family="font3", size=17)
+        FilterFont = customtkinter.CTkFont(family="font3", size=17)
+        NoiseFont = customtkinter.CTkFont(family="font3", size=17)
+        SaveFont = customtkinter.CTkFont(family="font3", size=20)
+
+
+        self.select_Image_button = customtkinter.CTkButton(self.sidebar_frame, command=self.selectPictureEvent, text="Select Image", font=ImageFont)
+        self.select_Image_button.grid(row=1, column=0, padx=20, pady=10, sticky="NEWS")
         self.select_Image_button.grid_propagate(False)
 
         self.buttonColors=self.select_Image_button._fg_color
 
-        self.Histogram_button = customtkinter.CTkButton(self.sidebar_frame, command=self.HistogramEvent, text="Calculate histogram", fg_color='gray', state="disabled")
-        self.Histogram_button.grid(row=2, column=0, padx=20, pady=10)
+        self.Histogram_button = customtkinter.CTkButton(self.sidebar_frame, command=self.HistogramEvent, text="Calculate histogram", fg_color='gray', state="disabled", font=HistogramFont)
+        self.Histogram_button.grid(row=2, column=0, padx=20, pady=10, sticky="NEWS")
         self.Histogram_button.grid_propagate(False)
 
-        self.zooming_button = customtkinter.CTkButton(self.sidebar_frame, command=self.zoomingEvent, text="Zooming/Shrinking (Gray)", fg_color='gray', state="disabled", width=170)
-        self.zooming_button.grid(row=3, column=0, padx=20, pady=10)
+        self.zooming_button = customtkinter.CTkButton(self.sidebar_frame, command=self.zoomingEvent, text="Zooming/Shrinking", fg_color='gray', state="disabled", width=170, font=ZoomingFont)
+        self.zooming_button.grid(row=3, column=0, padx=20, pady=10, sticky="NEWS")
         self.zooming_button.grid_propagate(False)
 
-        self.contrast_button = customtkinter.CTkButton(self.sidebar_frame, command=self.contrastEvent, text="Contrast/Brightness (Gray)", fg_color='gray', state="disabled", width=170)
-        self.contrast_button.grid(row=4, column=0, padx=20, pady=10)
+        self.contrast_button = customtkinter.CTkButton(self.sidebar_frame, command=self.contrastEvent, text="Contrast/Brightness", fg_color='gray', state="disabled", width=170, font=ContrastFont)
+        self.contrast_button.grid(row=4, column=0, padx=20, pady=10, sticky="NEWS")
         self.contrast_button.grid_propagate(False)
 
-        self.filter_button = customtkinter.CTkButton(self.sidebar_frame, command=self.imageFilteringEvent, text="Image Filtering (Gray)", fg_color='gray', state="disabled")
-        self.filter_button.grid(row=5, column=0, padx=20, pady=10)
+        self.filter_button = customtkinter.CTkButton(self.sidebar_frame, command=self.imageFilteringEvent, text="Image Filtering", fg_color='gray', state="disabled", font=FilterFont)
+        self.filter_button.grid(row=5, column=0, padx=20, pady=10, sticky="NEWS")
         self.filter_button.grid_propagate(False)
 
-        self.noise_button = customtkinter.CTkButton(self.sidebar_frame, command=self.noiseReductionEvent, text="Noise Reduction (Gray)", fg_color='gray', state="disabled")
-        self.noise_button.grid(row=6, column=0, padx=20, pady=10)
+        self.noise_button = customtkinter.CTkButton(self.sidebar_frame, command=self.noiseReductionEvent, text="Noise Reduction", fg_color='gray', state="disabled", font=NoiseFont)
+        self.noise_button.grid(row=6, column=0, padx=20, pady=10, sticky="NEWS")
         self.noise_button.grid_propagate(False)
 
-        self.save_button = customtkinter.CTkButton(self.sidebar_frame, command=self.saveIMGEvent, text="Save Img", fg_color='gray', state="disabled")
-        self.save_button.grid(row=7, column=0, padx=20, pady=10)
+        self.save_button = customtkinter.CTkButton(self.sidebar_frame, command=self.saveIMGEvent, text="Save Img", fg_color='gray', state="disabled", font=SaveFont)
+        self.save_button.grid(row=7, column=0, padx=20, pady=10, sticky="NEWS")
         self.save_button.grid_propagate(False)
 
         ## Right Side Bar
