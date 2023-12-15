@@ -146,7 +146,7 @@ class NoiseFrame(customtkinter.CTkFrame):
 
         self.D0_SliderLabel=customtkinter.CTkLabel(self.FrequencyFrame,text=f"Cutoff frequency = {self.D0}")
         self.D0_SliderLabel.grid(row=0,column=0,padx=10, pady=20)
-        self.D0_Slider = customtkinter.CTkSlider(self.FrequencyFrame, from_=1, to=int(np.max(self.originalBitmatrix.shape)), number_of_steps=499, command=self.D0_SliderEvent)
+        self.D0_Slider = customtkinter.CTkSlider(self.FrequencyFrame, from_=1, to=int(np.power(np.max(self.originalBitmatrix.shape),.75)), number_of_steps=499, command=self.D0_SliderEvent)
         self.D0_Slider.grid(row=1,column=0,padx=10, pady=20)
         self.D0_Slider.set(self.D0)
 
