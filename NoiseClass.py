@@ -61,6 +61,19 @@ class NoiseFrame(customtkinter.CTkFrame):
         # Spacial
         self.kernelSize = 3
         self.originalBitmatrix=np.copy(self.app.bitMatrix[ROI[1]:ROI[3],ROI[0]:ROI[2]])
+        self.spatialDictionary = {
+            "Arithmetic": self.ArithmeticMeanFilter, 
+            "Geometric": self.GeometricMeanFilter, 
+            "Harmonic": self.HarmonicMeanFilter,
+            "Contra Harmonic": self.ContraharmonicMeanFilter,
+            "Max": self.maxFilter,
+            "Min": self.minFilter,
+            "Midpoint": self.midpointFilter, 
+            "Median": self.medianFilter, 
+            "Alpha Trimmed Mean": self.alphaTrimmedMeanFilter,
+            "Adaptive Local Noise": self.adaptiveLocalNoiseReduction,
+        }
+
         self.option = None
         self.Q = 0
         self.Alpha = 1
@@ -87,7 +100,7 @@ class NoiseFrame(customtkinter.CTkFrame):
 
         # region Spacial
         self.SpacialFrame = customtkinter.CTkFrame(self.ActionFrameExtended,border_width=5)
-        self.SpacialFrame.rowconfigure((0,1,2,3,4,5,6,7,8),weight=1)
+        self.SpacialFrame.rowconfigure((0,1,2,3,4,5,6,7,8,9),weight=0)
         self.SpacialFrame.columnconfigure((0),weight=1)
 
         # Widgets
@@ -104,46 +117,31 @@ class NoiseFrame(customtkinter.CTkFrame):
         self.Q_Slider.set(self.Q)
 
         self.Alpha_SliderLabel=customtkinter.CTkLabel(self.SpacialFrame,text=f"Alpha = {self.Alpha}")
-        self.Alpha_SliderLabel.grid(row=2,column=0,padx=10, pady=20)
+        self.Alpha_SliderLabel.grid(row=2,column=0,columnspan=2,padx=10, pady=20)
         self.Alpha_Slider = customtkinter.CTkSlider(self.SpacialFrame, from_=1, to=20, number_of_steps=19,command=self.AlphaSizeEvent)
-        self.Alpha_Slider.grid(row=3,column=0,padx=10, pady=20)
+        self.Alpha_Slider.grid(row=3,column=0,columnspan=2,padx=10, pady=20)
         self.Alpha_Slider.set(self.Alpha)
         
-        self.ArithmeticMeanButton = customtkinter.CTkButton(self.SpacialFrame, text="Arithmetic Mean",command=self.ArithmeticEvent)
-        self.ArithmeticMeanButton.grid(row=4,column=0,padx=10, pady=20)
+        self.MeanOptionsLabel=customtkinter.CTkLabel(self.SpacialFrame,text="Mean Filters")
+        self.MeanOptionsLabel.grid(row=4,column=0,columnspan=2,padx=10, pady=20)
+        self.MeanOptions= customtkinter.CTkOptionMenu(self.SpacialFrame,values=["Arithmetic", "Geometric", "Harmonic", "Contra Harmonic"], width = 210, dynamic_resizing=False,command=self.SpatialMenus)
+        self.MeanOptions.grid(row=5,column=0,columnspan=2,padx=10, pady=20)
 
-        self.GeometricMeanButton = customtkinter.CTkButton(self.SpacialFrame, text="Geometric Mean", command=self.GeometricEvent)
-        self.GeometricMeanButton.grid(row=5,column=0,padx=10, pady=20)
+        self.StatisticLabel=customtkinter.CTkLabel(self.SpacialFrame,text="Statistic Filters")
+        self.StatisticLabel.grid(row=6,column=0,columnspan=2,padx=10, pady=20)
+        self.StatisticOptions= customtkinter.CTkOptionMenu(self.SpacialFrame,values=["Max", "Min", "Midpoint", "Median", "Alpha Trimmed Mean"], width = 210, dynamic_resizing=False,command=self.SpatialMenus)
+        self.StatisticOptions.grid(row=7,column=0,columnspan=2,padx=10, pady=20)
 
-        self.HarmonicMeanButton=customtkinter.CTkButton(self.SpacialFrame, text="Harmonic Mean", command=self.HarmonicEvent)
-        self.HarmonicMeanButton.grid(row=4,column=1,padx=10, pady=20)
-
-        self.ContraharmonicMeanButton = customtkinter.CTkButton(self.SpacialFrame, text="Contraharmonic Mean", command=self.ContraharmonicEvent)
-        self.ContraharmonicMeanButton.grid(row=5,column=1,padx=10, pady=20)
-        
-        self.maxButton = customtkinter.CTkButton(self.SpacialFrame, text="Max Filter", command=self.MaxEvent)
-        self.maxButton.grid(row=6,column=0,padx=10, pady=20)
-
-        self.minButton = customtkinter.CTkButton(self.SpacialFrame, text="Min Filter",command=self.MinEvent)
-        self.minButton.grid(row=7,column=0,padx=10, pady=20)
-
-        self.midpointButton = customtkinter.CTkButton(self.SpacialFrame, text="Midpoint Filter", command=self.MidpointEvent)
-        self.midpointButton.grid(row=6,column=1,padx=10, pady=20)
-
-        self.medianButton = customtkinter.CTkButton(self.SpacialFrame, text="Median Filter", command=self.MedianEvent)
-        self.medianButton.grid(row=7,column=1,padx=10, pady=20)
-
-        self.alphaTrimmedMeanButton = customtkinter.CTkButton(self.SpacialFrame, text="Alpha Trimmed Mean Filter", command=self.AlphaEvent)
-        self.alphaTrimmedMeanButton.grid(row=8,column=0,padx=10, pady=20)
-
-        self.adaptiveLocalNoiseButton = customtkinter.CTkButton(self.SpacialFrame, text="Adaptive Local Noise Filter", command=self.AdaptiveEvent)
-        self.adaptiveLocalNoiseButton.grid(row=8,column=1,padx=10, pady=20)
+        self.AdaptiveLabel=customtkinter.CTkLabel(self.SpacialFrame,text="Adaptive Filters")
+        self.AdaptiveLabel.grid(row=8,column=0,columnspan=2,padx=10, pady=20)
+        self.AdaptiveOptions= customtkinter.CTkOptionMenu(self.SpacialFrame,values=["Adaptive Local Noise"], width = 210, dynamic_resizing=False,command=self.SpatialMenus)
+        self.AdaptiveOptions.grid(row=9,column=0,columnspan=2,padx=10, pady=20)
 
         # endregion
 
         # region Frequency
         self.FrequencyFrame = customtkinter.CTkFrame(self.ActionFrameExtended,border_width=5)
-        self.FrequencyFrame.rowconfigure((0,1,2,3,4,5,6,7,8),weight=1)
+        self.FrequencyFrame.rowconfigure((0,1,2,3,4,5,6,7,8),weight=0)
         self.FrequencyFrame.columnconfigure((0,1),weight=1)
 
         self.D0_SliderLabel=customtkinter.CTkLabel(self.FrequencyFrame,text=f"Cutoff frequency = {self.D0}")
@@ -188,23 +186,15 @@ class NoiseFrame(customtkinter.CTkFrame):
         self.Q_freq_Slider.grid(row=7,column=0,columnspan=2,padx=10, pady=20)
         self.Q_freq_Slider.set(self.Q_freq)
 
-        self.GaussianNotchButton = customtkinter.CTkButton(self.FrequencyFrame, text="Gaussian Notch", command=self.GaussianNotch_Event )
-        self.GaussianNotchButton.grid(row=8,column=1,padx=10, pady=20)
+        self.NotchLabel=customtkinter.CTkLabel(self.FrequencyFrame,text="Notch Filters")
+        self.NotchLabel.grid(row=8,column=0,padx=10, pady=20)
+        self.NotchOptions= customtkinter.CTkOptionMenu(self.FrequencyFrame,values=["Gaussian","Ideal","Butterworth"], width = 210, dynamic_resizing=False,command=self.FrequencyNotchMenus)
+        self.NotchOptions.grid(row=9,column=0,padx=10, pady=20)
 
-        self.GaussianNotchPassButton = customtkinter.CTkButton(self.FrequencyFrame, text="Gaussian Notch Pass", command=self.GaussianNotchPass_Event)
-        self.GaussianNotchPassButton.grid(row=8,column=0,padx=10, pady=20)
-
-        self.IdealNotchButton = customtkinter.CTkButton(self.FrequencyFrame, text="Ideal Notch", command=self.IdealNotch_Event)
-        self.IdealNotchButton.grid(row=9,column=1,padx=10, pady=20)
-
-        self.IdealNotchPassButton = customtkinter.CTkButton(self.FrequencyFrame, text="Ideal Notch Pass", command=self.IdealNotchPass_Event)
-        self.IdealNotchPassButton.grid(row=9,column=0,padx=10, pady=20)
-
-        self.ButterworthNotchButton = customtkinter.CTkButton(self.FrequencyFrame, text="Butterworth Notch", command=self.ButterworthNotch_Event)
-        self.ButterworthNotchButton.grid(row=10,column=1,padx=10, pady=20)
-
-        self.ButterworthNotchPassButton = customtkinter.CTkButton(self.FrequencyFrame, text="Butterworth Notch Pass", command=self.ButterworthNotchPass_Event)
-        self.ButterworthNotchPassButton.grid(row=10,column=0,padx=10, pady=20)
+        self.NotchPassLabel=customtkinter.CTkLabel(self.FrequencyFrame,text="Notch Pass Filters")
+        self.NotchPassLabel.grid(row=8,column=1,padx=10, pady=20)
+        self.NotchPassOptions= customtkinter.CTkOptionMenu(self.FrequencyFrame,values=["Gaussian","Ideal","Butterworth"], width = 210, dynamic_resizing=False,command=self.FrequencyNotchPassMenus)
+        self.NotchPassOptions.grid(row=9,column=1,padx=10, pady=20)
 
         # endregion
 
@@ -257,73 +247,19 @@ class NoiseFrame(customtkinter.CTkFrame):
         self.Q=int(value)
         self.Q_SliderLabel.configure(text=f"Q = {self.Q}")
 
-
     def AlphaSizeEvent(self,value):
         self.Alpha=int(value)
         self.Alpha_SliderLabel.configure(text=f"Alpha = {self.Alpha}")
-              
-    def ArithmeticEvent(self):
-        result = self.ArithmeticMeanFilter(self.originalBitmatrix)
-        self.option = "Arithmetic"
+
+    def SpatialMenus(self,value):
+        self.option = value
+
+        result = self.spatialDictionary[value](matrix=self.originalBitmatrix,Q=self.Q,alpha=self.Alpha)
 
         self.processNewImage(result)
-
-    def GeometricEvent(self):
-        result = self.GeometricMeanFilter(self.originalBitmatrix)
-        self.option = "Geometric"
         
-        self.processNewImage(result)
-
-    def HarmonicEvent(self):
-        result = self.HarmonicMeanFilter(self.originalBitmatrix)
-        self.option = "Harmonic"
-        
-        self.processNewImage(result)
-
-    def ContraharmonicEvent(self):
-        result = self.ContraharmonicMeanFilter(self.originalBitmatrix,self.Q)
-        self.option = "Contraharmonic"
-        
-        self.processNewImage(result)
-
-    def MaxEvent(self):
-        result = self.maxFilter(self.originalBitmatrix)
-        self.option = "Max"
-        
-        self.processNewImage(result)
-
-    def MinEvent(self):
-        result = self.minFilter(self.originalBitmatrix)
-        self.option = "Min"
-        
-        self.processNewImage(result)
-
-    def MidpointEvent(self):
-        result = self.midpointFilter(self.originalBitmatrix)
-        self.option = "Midpoint"
-        
-        self.processNewImage(result)
-
-    def MedianEvent(self):
-        result = self.medianFilter(self.originalBitmatrix)
-        self.option = "Median"
-        
-        self.processNewImage(result)
-
-    def AlphaEvent(self):
-        result = self.alphaTrimmedMeanFilter(self.originalBitmatrix,self.Alpha)
-        self.option = "Alpha"
-        
-        self.processNewImage(result)
-
-    def AdaptiveEvent(self):
-        result = self.adaptiveLocalNoiseReduction(self.originalBitmatrix)
-        self.option = "Adapt"
-        
-        self.processNewImage(result)        
-    
     # Mean Filters
-    def ArithmeticMeanFilter(self,matrix):
+    def ArithmeticMeanFilter(self,matrix, Q, alpha):
         matrix = matrix.astype(np.float64)
         matrix = np.maximum(matrix, 1e-10)
 
@@ -340,7 +276,7 @@ class NoiseFrame(customtkinter.CTkFrame):
 
         return resultClipped
         
-    def GeometricMeanFilter(self,matrix):
+    def GeometricMeanFilter(self,matrix, Q, alpha):
         matrix = matrix.astype(np.float64)
         matrix = np.maximum(matrix, 1e-10)
         paddedMatrix = self.padMatrix(matrix)
@@ -362,7 +298,7 @@ class NoiseFrame(customtkinter.CTkFrame):
         
         return np.pad(matrix, pad_width, mode='symmetric')
 
-    def HarmonicMeanFilter(self,matrix):
+    def HarmonicMeanFilter(self,matrix, Q, alpha):
         kernel = np.ones((self.kernelSize, self.kernelSize), np.float64)
 
         matrix = matrix.astype(np.float64)
@@ -378,7 +314,7 @@ class NoiseFrame(customtkinter.CTkFrame):
 
         return resultClipped
 
-    def ContraharmonicMeanFilter(self,matrix,Q):
+    def ContraharmonicMeanFilter(self,matrix, Q, alpha):
         kernel = np.ones((self.kernelSize, self.kernelSize), np.float64)
 
         matrix = np.maximum(matrix, 1e-10)
@@ -395,27 +331,27 @@ class NoiseFrame(customtkinter.CTkFrame):
         return resultClipped
     
     #Order-Statistic Filters
-    def medianFilter(self,matrix):
+    def medianFilter(self,matrix, Q, alpha):
         result = scipy.ndimage.median_filter(matrix, size=self.kernelSize)
 
         return result
         
-    def maxFilter(self, matrix):
+    def maxFilter(self, matrix, Q, alpha):
         result = scipy.ndimage.maximum_filter(matrix, size=self.kernelSize)
 
         return result
 
-    def minFilter(self, matrix):
+    def minFilter(self, matrix, Q, alpha):
         result = scipy.ndimage.minimum_filter(matrix, size=self.kernelSize)
 
         return result
         
-    def midpointFilter(self,matrix):
-        result = (self.maxFilter(matrix).astype(np.float64) + self.minFilter(matrix).astype(np.float64)) / 2
+    def midpointFilter(self,matrix, Q, alpha):
+        result = (self.maxFilter(matrix, Q, alpha).astype(np.float64) + self.minFilter(matrix, Q, alpha).astype(np.float64)) / 2
 
         return result.astype(np.uint8)
         
-    def alphaTrimmedMeanFilter(self,matrix, alpha):
+    def alphaTrimmedMeanFilter(self,matrix, Q, alpha):
 
         def alpha_trimmed_mean(values):
             sorted_values = np.sort(values)
@@ -427,7 +363,7 @@ class NoiseFrame(customtkinter.CTkFrame):
         return filtered_image
 
     # Adaptive Filters
-    def adaptiveLocalNoiseReduction(self,matrix):
+    def adaptiveLocalNoiseReduction(self,matrix, Q, alpha):
         matrix = matrix.astype(np.float64)
              
         C = np.pad(matrix, ((self.kernelSize // 2, self.kernelSize // 2), (self.kernelSize // 2, self.kernelSize // 2)), mode='constant')
@@ -527,33 +463,13 @@ class NoiseFrame(customtkinter.CTkFrame):
         if self.Transferfunction != None:
             self.processTransfer()
 
-    def GaussianNotch_Event(self):
-        self.Transferfunction = "Gaussian Notch Filter"
+    def FrequencyNotchMenus(self,value):
+        self.Transferfunction = value + " Notch"
 
         self.processTransfer()
 
-    def GaussianNotchPass_Event(self):
-        self.Transferfunction = "Gaussian Notch Pass Filter"
-
-        self.processTransfer()
-
-    def IdealNotch_Event(self):
-        self.Transferfunction = "Ideal Notch Filter"
-
-        self.processTransfer()
-
-    def IdealNotchPass_Event(self):
-        self.Transferfunction = "Ideal Notch Pass Filter"
-
-        self.processTransfer()
-
-    def ButterworthNotch_Event(self):
-        self.Transferfunction = "Butterworth Notch Filter"
-
-        self.processTransfer()
-
-    def ButterworthNotchPass_Event(self):
-        self.Transferfunction = "Butterworth Notch Pass Filter"
+    def FrequencyNotchPassMenus(self,value):
+        self.Transferfunction = value + " Notch Pass"
 
         self.processTransfer()
 
@@ -670,12 +586,12 @@ class NoiseFrame(customtkinter.CTkFrame):
         self.ButterworthNotchPass = 1 - self.ButterworthNotch
 
         self.TransferDictionary = {
-                "Gaussian Notch Filter" : self.GaussianNotch,
-                "Gaussian Notch Pass Filter" : self.GaussianNotchPass,
-                "Ideal Notch Filter" : self.IdealNotch,
-                "Ideal Notch Pass Filter" :  self.IdealNotchPass,
-                "Butterworth Notch Filter" : self.ButterworthNotch,
-                "Butterworth Notch Pass Filter" : self.ButterworthNotchPass
+                "Gaussian Notch" : self.GaussianNotch,
+                "Gaussian Notch Pass" : self.GaussianNotchPass,
+                "Ideal Notch" : self.IdealNotch,
+                "Ideal Notch Pass" :  self.IdealNotchPass,
+                "Butterworth Notch" : self.ButterworthNotch,
+                "Butterworth Notch Pass" : self.ButterworthNotchPass
             }
         
 
