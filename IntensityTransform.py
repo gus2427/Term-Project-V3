@@ -426,7 +426,7 @@ class IntensityFrame(customtkinter.CTkFrame):
         self.m_labelArray.append(customtkinter.CTkLabel(self.piecewiseActionFrame,text=f"m = {self.m_sliderVal_Array[-1]}"))
         self.m_labelArray[-1].grid(row=self.gridrowBase+3,column=0,padx=15)
 
-        self.m_slider_Array.append(customtkinter.CTkSlider(self.piecewiseActionFrame, from_=-15, to=15, number_of_steps=60, command=lambda value, index=self.functionCount: self.m_Slider_Event(value,index)))
+        self.m_slider_Array.append(customtkinter.CTkSlider(self.piecewiseActionFrame, from_=-15, to=15, number_of_steps=120, command=lambda value, index=self.functionCount: self.m_Slider_Event(value,index)))
         self.m_slider_Array[-1].grid(row=self.gridrowBase+4,column=0,padx=10)
 
         self.b_sliderVal_Array.append(0)

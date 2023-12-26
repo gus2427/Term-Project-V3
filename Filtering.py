@@ -421,4 +421,3 @@ class FiteringFrame(customtkinter.CTkFrame):
         s = self.originalBitmatrix.astype(np.float64) + self.app.bitMatrix[self.ROI[1]:self.ROI[3],self.ROI[0]:self.ROI[2]].astype(np.float64)
         s=clipValues(s,self.app.bits).astype(np.uint8)
         self.app.stitchROIandDisplay(s)
-
